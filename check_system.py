@@ -29,6 +29,9 @@ if __name__ == '__main__':
     cpu_load = float(cpu.split()[0])
     if cpu_load > 1.0:
         result = result + " | WARNING: CPU load is high"
+    disk_usage = int(disk.rstrip('%'))
+    if disk_usage > 80:
+        result = result + " | WARNING: Disk usage is high"
     print(result)
     with open('status.log', 'a') as f:
         f.write(result + '\n')
