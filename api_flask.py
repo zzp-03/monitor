@@ -1,3 +1,5 @@
+from flask import request 
+from flask import request
 from flask import Flask, jsonify
 import os
 import time
@@ -60,6 +62,17 @@ def report():
         "weather": weather,
         "humidity": humidity
     })
-
+@app.route('/weather')
+def get_weather_api():
+    city = request.args.get('city')
+    if not city:
+        return {"error": "请提供城市名，例如 /weather?city=北京"}
+    temp, weather, humidity = get_weather(city)
+    return {
+        "city": city,
+        "temperature": temp,
+        "weather": weather,
+        "humidity": humidity
+    }
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8001, debug=True)
