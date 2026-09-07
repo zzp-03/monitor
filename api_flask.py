@@ -78,6 +78,23 @@ def report():
         "humidity": humidity
     })
 
+@app.route('/history')
+def history():
+    conn = sqlite3.connect('monitor.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT timestamp, cpu, memory_total, memory_available, disk_usage FROM monitor_history ORDER BY id DESC LIMIT 10')
+    rows = cursor.fetchall()
+    conn.close()
+    data = []
+    for row in rows:
+        data.append({
+            "time": row[0],
+            "cpu": row[1],
+            "memory_total": row[2],
+            "memory_available": row[3],
+            "disk_usage": row[4]
+        })
+    return jsonify(data)
 @app.route('/weather')
 def get_weather_api():
     city = request.args.get('city')
