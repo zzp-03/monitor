@@ -74,5 +74,10 @@ def get_weather_api():
         "weather": weather,
         "humidity": humidity
     }
+@app.route('/now')
+def get_current_time():
+    from datetime import datetime
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    return {"time": now}
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8001, debug=True)
