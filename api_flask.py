@@ -1,10 +1,9 @@
-from flask import request 
-from flask import request
-from flask import Flask, jsonify
+from flask import Flask, request, jsonify
 import os
 import time
 from datetime import datetime
 import requests
+import sqlite3
 
 app = Flask(__name__)
 
@@ -16,6 +15,8 @@ def get_cpu_load():
 def get_memory_info():
     with open('/proc/meminfo', 'r') as f:
         lines = f.readlines()
+        total = "0"
+        available = "0"
         for line in lines:
             if 'MemTotal' in line:
                 total = line.split()[1]
@@ -39,6 +40,16 @@ def get_weather(city):
     humidity = current["humidity"]
     return temp, weather, humidity
 
+def save_to_db(timestamp, cpu, total, available, disk):
+    conn = sqlite3.connect('monitor.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO monitor_history (timestamp, cpu, memory_total, memory_available, disk_usage)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (timestamp, cpu, total, available, disk))
+    conn.commit()
+    conn.close()
+
 @app.route('/')
 def root():
     return '访问 /report 查看简报'
@@ -51,6 +62,10 @@ def report():
     total, available = get_memory_info()
     disk = get_disk_usage()
     temp, weather, humidity = get_weather(city)
+
+    # 保存到数据库
+    save_to_db(timestamp, cpu, total, available, disk)
+
     return jsonify({
         "time": timestamp,
         "cpu": cpu,
@@ -62,6 +77,7 @@ def report():
         "weather": weather,
         "humidity": humidity
     })
+
 @app.route('/weather')
 def get_weather_api():
     city = request.args.get('city')
@@ -74,10 +90,11 @@ def get_weather_api():
         "weather": weather,
         "humidity": humidity
     }
+
 @app.route('/now')
 def get_current_time():
-    from datetime import datetime
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     return {"time": now}
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8001, debug=True)
