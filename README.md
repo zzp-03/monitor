@@ -15,3 +15,6 @@
 pip install flask requests
 python3 init_db.py
 python3 api_flask.py
+## 运行效果
+
+![系统状态查询](./微信图片_20260908102732_82_27.png)
