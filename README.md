@@ -21,3 +21,9 @@ python3 api_flask.py
 ## 定时采集效果
 
 ![定时采集成功](./collect_success.png)
+
+## AI 分析接口
+
+访问 `/analyze` 会先采集系统状态，然后调用 Agnes AI 分析是否正常，返回 AI 的分析结果。
+
+![AI分析效果](./analyze_success.png)
