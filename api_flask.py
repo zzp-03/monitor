@@ -6,12 +6,15 @@ import requests
 import sqlite3
 
 app = Flask(__name__)
+app.config['JSON_AS_ASCII'] = False
 
+# 读取 /proc/loadavg，返回 1/5/15 分钟平均负载
 def get_cpu_load():
     with open('/proc/loadavg', 'r') as f:
         data = f.read().split()
         return data[0] + ' ' + data[1] + ' ' + data[2]
 
+# 读取 /proc/meminfo，返回总内存和可用内存
 def get_memory_info():
     with open('/proc/meminfo', 'r') as f:
         lines = f.readlines()
@@ -24,12 +27,14 @@ def get_memory_info():
                 available = line.split()[1]
         return total, available
 
+# 执行 df -h /，返回根分区使用率
 def get_disk_usage():
     with os.popen('df -h /') as result:
         lines = result.readlines()
         parts = lines[1].split()
         return parts[4]
 
+# 调用 wttr.in，返回指定城市的温度、天气、湿度
 def get_weather(city):
     url = f"https://wttr.in/{city}?format=j1"
     response = requests.get(url)
@@ -40,6 +45,7 @@ def get_weather(city):
     humidity = current["humidity"]
     return temp, weather, humidity
 
+# 把一次采集的数据写入 SQLite
 def save_to_db(timestamp, cpu, total, available, disk):
     conn = sqlite3.connect('monitor.db')
     cursor = conn.cursor()
@@ -50,10 +56,12 @@ def save_to_db(timestamp, cpu, total, available, disk):
     conn.commit()
     conn.close()
 
+# 根路由
 @app.route('/')
 def root():
     return '访问 /report 查看简报'
 
+# /report：采集数据，写入数据库，返回 JSON
 @app.route('/report')
 def report():
     city = "平顶山"
@@ -62,10 +70,7 @@ def report():
     total, available = get_memory_info()
     disk = get_disk_usage()
     temp, weather, humidity = get_weather(city)
-
-    # 保存到数据库
     save_to_db(timestamp, cpu, total, available, disk)
-
     return jsonify({
         "time": timestamp,
         "cpu": cpu,
@@ -78,6 +83,37 @@ def report():
         "humidity": humidity
     })
 
+# /analyze：调用 Agnes AI 分析系统状态
+@app.route('/analyze')
+def analyze():
+    cpu = get_cpu_load()
+    total, available = get_memory_info()
+    disk = get_disk_usage()
+    prompt = f"当前服务器状态：CPU负载 {cpu}，内存总量 {total}KB，可用内存 {available}KB，磁盘使用率 {disk}。请用一句话分析系统是否正常，如果不正常可能是什么原因。"
+    url = "https://apihub.agnes-ai.com/v1/chat/completions"
+    headers = {
+        "Authorization": "Bearer sk-Aa2cHiLTy8XwqDrhYelIE0gGUIjPiPVk3QKhVGeSUpBtgHZ8",
+        "Content-Type": "application/json"
+    }
+    body = {
+        "model": "agnes-2.5-flash",
+        "messages": [{"role": "user", "content": prompt}]
+    }
+    try:
+        resp = requests.post(url, headers=headers, json=body, timeout=30)
+        result = resp.json()
+        ai_reply = result["choices"][0]["message"]["content"]
+    except Exception as e:
+        ai_reply = f"AI 分析失败: {e}"
+    return jsonify({
+        "cpu": cpu,
+        "memory_total": total,
+        "memory_available": available,
+        "disk_usage": disk,
+        "ai_analysis": ai_reply
+    })
+
+# /history：查询最近 10 条历史记录
 @app.route('/history')
 def history():
     conn = sqlite3.connect('monitor.db')
@@ -95,6 +131,8 @@ def history():
             "disk_usage": row[4]
         })
     return jsonify(data)
+
+# /weather?city=城市名：查询指定城市天气
 @app.route('/weather')
 def get_weather_api():
     city = request.args.get('city')
@@ -108,6 +146,7 @@ def get_weather_api():
         "humidity": humidity
     }
 
+# /now：返回当前时间
 @app.route('/now')
 def get_current_time():
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
