@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import os
 import time
 from datetime import datetime
@@ -55,7 +55,13 @@ def save_to_db(timestamp, cpu, total, available, disk):
     ''', (timestamp, cpu, total, available, disk))
     conn.commit()
     conn.close()
-
+# /dashboard：渲染监控面板页面，显示真实数据
+@app.route('/dashboard')
+def dashboard():
+    cpu = get_cpu_load()
+    total, available = get_memory_info()
+    disk = get_disk_usage()
+    return render_template('index.html', cpu=cpu, memory=total, disk=disk)
 # 根路由
 @app.route('/')
 def root():
