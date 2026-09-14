@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 import requests
 import sqlite3
-
+AGNES_KEY = os.environ.get('AGNES_API_KEY', '')
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
@@ -92,7 +92,7 @@ def analyze():
     prompt = f"当前服务器状态：CPU负载 {cpu}，内存总量 {total}KB，可用内存 {available}KB，磁盘使用率 {disk}。请用一句话分析系统是否正常，如果不正常可能是什么原因。"
     url = "https://apihub.agnes-ai.com/v1/chat/completions"
     headers = {
-        "Authorization": "Bearer sk-Aa2cHiLTy8XwqDrhYelIE0gGUIjPiPVk3QKhVGeSUpBtgHZ8",
+        "Authorization": f"Bearer {AGNES_KEY}",
         "Content-Type": "application/json"
     }
     body = {
