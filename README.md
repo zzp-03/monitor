@@ -27,3 +27,8 @@ python3 api_flask.py
 访问 `/analyze` 会先采集系统状态，然后调用 Agnes AI 分析是否正常，返回 AI 的分析结果。
 
 ![AI分析效果](./analyze_success.png)
+## 监控面板
+
+访问 `/dashboard` 可以看到一个 Web 页面，显示真实的 CPU、内存、磁盘数据。
+
+![监控面板](./web_v2.png)
