@@ -61,7 +61,17 @@ def dashboard():
     cpu = get_cpu_load()
     total, available = get_memory_info()
     disk = get_disk_usage()
-    return render_template('index.html', cpu=cpu, memory=total, disk=disk)
+
+    # CPU 只取 1 分钟负载（第一个数字）
+    cpu_1min = cpu.split()[0]
+
+    # 内存使用率 = (总量 - 可用) / 总量 × 100
+    mem_used_percent = round((int(total) - int(available)) / int(total) * 100, 1)
+
+    return render_template('index.html',
+                           cpu=cpu_1min,
+                           memory=mem_used_percent,
+                           disk=disk)
 # 根路由
 @app.route('/')
 def root():
