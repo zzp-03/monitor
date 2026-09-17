@@ -56,5 +56,37 @@
             <div class="value">{{ disk }}</div>
         </div>
     </div>
+    <h2 style="text-align:center; margin-top:40px;">CPU 历史趋势（最近10次）</h2>
+    <canvas id="cpuChart" width="800" height="300" style="display:block; margin:20px auto;"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const times = {{ times | tojson }};
+        const cpus = {{ cpus | tojson }};
+
+        const timesRev = times.reverse();
+        const cpusRev = cpus.reverse();
+
+        const ctx = document.getElementById('cpuChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: timesRev,
+                datasets: [{
+                    label: 'CPU 负载',
+                    data: cpusRev,
+                    borderColor: '#4a90e2',
+                    backgroundColor: 'rgba(74,144,226,0.1)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    </script>
 </body>
 </html>

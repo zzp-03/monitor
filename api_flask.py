@@ -67,11 +67,25 @@ def dashboard():
 
     # 内存使用率 = (总量 - 可用) / 总量 × 100
     mem_used_percent = round((int(total) - int(available)) / int(total) * 100, 1)
+    # 查询最近 10 条历史记录
+    conn = sqlite3.connect('monitor.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT timestamp, cpu FROM monitor_history ORDER BY id DESC LIMIT 10')
+    rows = cursor.fetchall()
+    conn.close()
 
+    # 把数据整理成两个列表，方便传给页面
+    times = []
+    cpus = []
+    for row in rows:
+        times.append(row[0])
+        cpus.append(row[1].split()[0])   # 只取 1 分钟负载
     return render_template('index.html',
-                           cpu=cpu_1min,
-                           memory=mem_used_percent,
-                           disk=disk)
+                       cpu=cpu_1min,
+                       memory=mem_used_percent,
+                       disk=disk,
+                       times=times,
+                       cpus=cpus)
 # 根路由
 @app.route('/')
 def root():
