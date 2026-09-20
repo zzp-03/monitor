@@ -4,6 +4,8 @@ import time
 from datetime import datetime
 import requests
 import sqlite3
+WXPUSHER_TOKEN = os.environ.get('WXPUSHER_TOKEN', '')
+WXPUSHER_UID = os.environ.get('WXPUSHER_UID', '')
 AGNES_KEY = os.environ.get('AGNES_API_KEY', '')
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
@@ -55,6 +57,21 @@ def save_to_db(timestamp, cpu, total, available, disk):
     ''', (timestamp, cpu, total, available, disk))
     conn.commit()
     conn.close()
+# 通过 WxPusher 推送告警到微信
+def send_alert(title, content):
+    url = "https://wxpusher.zjiecode.com/api/send/message"
+    payload = {
+        "appToken": WXPUSHER_TOKEN,
+        "content": content,
+        "summary": title,
+        "contentType": 1,
+        "uids": [WXPUSHER_UID]
+    }
+    try:
+        resp = requests.post(url, json=payload, verify=False, timeout=10)
+        print(f"[告警推送] {resp.json()}")
+    except Exception as e:
+        print(f"[告警推送失败] {e}")
 # /dashboard：渲染监控面板页面，显示真实数据
 @app.route('/dashboard')
 def dashboard():
@@ -181,6 +198,10 @@ def get_weather_api():
 def get_current_time():
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     return {"time": now}
-
+# /test_alert：测试告警推送
+@app.route('/test_alert')
+def test_alert():
+    send_alert("测试告警", "这是一条来自监控系统的测试告警")
+    return {"status": "已发送，请查看微信"}
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8001, debug=True)
