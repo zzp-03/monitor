@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 import os
 import time
+import time as time_module
 from datetime import datetime
 import requests
 import sqlite3
@@ -72,6 +73,27 @@ def send_alert(title, content):
         print(f"[告警推送] {resp.json()}")
     except Exception as e:
         print(f"[告警推送失败] {e}")
+
+# 记录上次推送时间，避免重复刷屏
+last_alert_time = {}
+
+def check_alerts(cpu_1min):
+    """检查各项指标是否超阈值，超了就发告警"""
+    global last_alert_time
+    now = time_module.time()
+
+    # CPU 阈值 80%
+    try:
+        cpu_value = float(cpu_1min)
+    except:
+        cpu_value = 0
+
+    if cpu_value > 0.8:
+        # 冷却时间：30 分钟 = 1800 秒
+        last = last_alert_time.get('cpu', 0)
+        if now - last > 1800:
+            send_alert("CPU 告警", f"CPU 负载过高：{cpu_value}")
+            last_alert_time['cpu'] = now
 # /dashboard：渲染监控面板页面，显示真实数据
 @app.route('/dashboard')
 def dashboard():
@@ -118,6 +140,9 @@ def report():
     disk = get_disk_usage()
     temp, weather, humidity = get_weather(city)
     save_to_db(timestamp, cpu, total, available, disk)
+    # 检查是否需要告警
+    cpu_1min = cpu.split()[0]
+    check_alerts(cpu_1min)
     return jsonify({
         "time": timestamp,
         "cpu": cpu,
