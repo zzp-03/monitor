@@ -77,23 +77,41 @@ def send_alert(title, content):
 # 记录上次推送时间，避免重复刷屏
 last_alert_time = {}
 
-def check_alerts(cpu_1min):
+def check_alerts(cpu_1min,mem_percent, disk_percent):
     """检查各项指标是否超阈值，超了就发告警"""
     global last_alert_time
     now = time_module.time()
 
-    # CPU 阈值 80%
+        # ---------- CPU ----------
     try:
         cpu_value = float(cpu_1min)
     except:
         cpu_value = 0
 
     if cpu_value > 0.8:
-        # 冷却时间：30 分钟 = 1800 秒
         last = last_alert_time.get('cpu', 0)
         if now - last > 1800:
             send_alert("CPU 告警", f"CPU 负载过高：{cpu_value}")
             last_alert_time['cpu'] = now
+
+    # ---------- 内存 ----------
+    if mem_percent > 90:
+        last = last_alert_time.get('memory', 0)
+        if now - last > 1800:
+            send_alert("内存告警", f"内存使用率过高：{mem_percent}%")
+            last_alert_time['memory'] = now
+
+    # ---------- 磁盘 ----------
+    try:
+        disk_value = int(disk_percent.strip('%'))
+    except:
+        disk_value = 0
+
+    if disk_value > 90:
+        last = last_alert_time.get('disk', 0)
+        if now - last > 1800:
+            send_alert("磁盘告警", f"磁盘使用率过高：{disk_percent}")
+            last_alert_time['disk'] = now
 # /dashboard：渲染监控面板页面，显示真实数据
 @app.route('/dashboard')
 def dashboard():
@@ -142,7 +160,8 @@ def report():
     save_to_db(timestamp, cpu, total, available, disk)
     # 检查是否需要告警
     cpu_1min = cpu.split()[0]
-    check_alerts(cpu_1min)
+    mem_percent = round((int(total) - int(available)) / int(total) * 100, 1)
+    check_alerts(cpu_1min, mem_percent, disk)
     return jsonify({
         "time": timestamp,
         "cpu": cpu,
