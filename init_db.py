@@ -14,6 +14,15 @@ CREATE TABLE IF NOT EXISTS monitor_history (
 )
 ''')
 
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS alert_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp TEXT,
+    alert_type TEXT,
+    message TEXT
+)
+''')
+
 conn.commit()
 conn.close()
 print("数据库表创建成功")

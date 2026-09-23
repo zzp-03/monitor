@@ -92,6 +92,7 @@ def check_alerts(cpu_1min,mem_percent, disk_percent):
         last = last_alert_time.get('cpu', 0)
         if now - last > 1800:
             send_alert("CPU 告警", f"CPU 负载过高：{cpu_value}")
+            save_alert_to_db("cpu", f"CPU 负载过高：{cpu_value}")
             last_alert_time['cpu'] = now
 
     # ---------- 内存 ----------
@@ -99,6 +100,7 @@ def check_alerts(cpu_1min,mem_percent, disk_percent):
         last = last_alert_time.get('memory', 0)
         if now - last > 1800:
             send_alert("内存告警", f"内存使用率过高：{mem_percent}%")
+            save_alert_to_db("memory", f"内存使用率过高：{mem_percent}%")
             last_alert_time['memory'] = now
 
     # ---------- 磁盘 ----------
@@ -111,6 +113,7 @@ def check_alerts(cpu_1min,mem_percent, disk_percent):
         last = last_alert_time.get('disk', 0)
         if now - last > 1800:
             send_alert("磁盘告警", f"磁盘使用率过高：{disk_percent}")
+            save_alert_to_db("disk", f"磁盘使用率过高：{disk_percent}")
             last_alert_time['disk'] = now
 # /dashboard：渲染监控面板页面，显示真实数据
 @app.route('/dashboard')
@@ -247,5 +250,15 @@ def get_current_time():
 def test_alert():
     send_alert("测试告警", "这是一条来自监控系统的测试告警")
     return {"status": "已发送，请查看微信"}
+# 把告警记录写入数据库
+def save_alert_to_db(alert_type, message):
+    conn = sqlite3.connect('monitor.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO alert_history (timestamp, alert_type, message)
+        VALUES (?, ?, ?)
+    ''', (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), alert_type, message))
+    conn.commit()
+    conn.close()
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8001, debug=True)
