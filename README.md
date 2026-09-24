@@ -32,3 +32,9 @@ python3 api_flask.py
 访问 `/dashboard` 可以看到一个 Web 页面，显示真实的 CPU、内存、磁盘数据。
 
 ![监控面板](./web_v5.png)
+
+## 告警历史
+
+页面下方会显示最近 10 条告警记录。
+
+![告警历史](./web_v6.png)
