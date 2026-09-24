@@ -132,6 +132,9 @@ def dashboard():
     cursor = conn.cursor()
     cursor.execute('SELECT timestamp, cpu FROM monitor_history ORDER BY id DESC LIMIT 10')
     rows = cursor.fetchall()
+    # 查询最近 10 条告警记录
+    cursor.execute('SELECT timestamp, alert_type, message FROM alert_history ORDER BY id DESC LIMIT 10')
+    alert_rows = cursor.fetchall()
     conn.close()
 
     # 把数据整理成两个列表，方便传给页面
@@ -140,12 +143,22 @@ def dashboard():
     for row in rows:
         times.append(row[0])
         cpus.append(row[1].split()[0])   # 只取 1 分钟负载
+      
+    # 把告警数据整理成字典列表
+    alerts = []
+    for row in alert_rows:
+        alerts.append({
+            "time": row[0],
+            "type": row[1],
+            "message": row[2]
+        })
     return render_template('index.html',
                        cpu=cpu_1min,
                        memory=mem_used_percent,
                        disk=disk,
                        times=times,
-                       cpus=cpus)
+                       cpus=cpus,
+                       alerts=alerts)
 # 根路由
 @app.route('/')
 def root():
