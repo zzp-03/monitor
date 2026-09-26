@@ -38,3 +38,7 @@ python3 api_flask.py
 页面下方会显示最近 10 条告警记录。
 
 ![告警历史](./web_v6.png)
+
+## 技术博客
+
+- [从零搭建监控系统：用 WxPusher 实现微信告警](https://blog.csdn.net/zzp_03/article/details/166680906)
