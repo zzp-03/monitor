@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, session, redirect, url_for
+import functools
 import os
 import time
 import time as time_module
@@ -10,6 +11,8 @@ WXPUSHER_UID = os.environ.get('WXPUSHER_UID', '')
 AGNES_KEY = os.environ.get('AGNES_API_KEY', '')
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
+app.secret_key = 'a-very-secret-key-change-me'
+LOGIN_PASSWORD = os.environ.get('DASHBOARD_PASSWORD', '')
 
 # 读取 /proc/loadavg，返回 1/5/15 分钟平均负载
 def get_cpu_load():
@@ -74,6 +77,14 @@ def send_alert(title, content):
     except Exception as e:
         print(f"[告警推送失败] {e}")
 
+def login_required(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        if not session.get('logged_in'):
+            return redirect('/login')
+        return f(*args, **kwargs)
+    return wrapper
+
 # 记录上次推送时间，避免重复刷屏
 last_alert_time = {}
 
@@ -115,8 +126,24 @@ def check_alerts(cpu_1min,mem_percent, disk_percent):
             send_alert("磁盘告警", f"磁盘使用率过高：{disk_percent}")
             save_alert_to_db("disk", f"磁盘使用率过高：{disk_percent}")
             last_alert_time['disk'] = now
+#登录页
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        pwd = request.form.get('password', '')
+        if pwd == LOGIN_PASSWORD:
+            session['logged_in'] = True
+            return redirect('/dashboard')
+        return render_template('login.html', error='密码错误')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('/login')
 # /dashboard：渲染监控面板页面，显示真实数据
 @app.route('/dashboard')
+@login_required
 def dashboard():
     cpu = get_cpu_load()
     total, available = get_memory_info()
