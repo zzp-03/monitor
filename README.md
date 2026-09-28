@@ -42,3 +42,9 @@ python3 api_flask.py
 ## 技术博客
 
 - [从零搭建监控系统：用 WxPusher 实现微信告警](https://blog.csdn.net/zzp_03/article/details/166680906)
+
+## 登录保护
+
+访问 `/dashboard` 需要登录，密码从环境变量 `DASHBOARD_PASSWORD` 读取。
+
+![登录页](./login_page.png)
