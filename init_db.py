@@ -1,9 +1,12 @@
 import pymysql
+import os
+
+DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
 
 conn = pymysql.connect(
     host='localhost',
     user='root',
-    password='Zzp911666@',
+    password=DB_PASSWORD,
     database='monitor'
 )
 cursor = conn.cursor()

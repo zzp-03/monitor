@@ -6,6 +6,7 @@ import time as time_module
 from datetime import datetime
 import requests
 import pymysql
+DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
 WXPUSHER_TOKEN = os.environ.get('WXPUSHER_TOKEN', '')
 WXPUSHER_UID = os.environ.get('WXPUSHER_UID', '')
 AGNES_KEY = os.environ.get('AGNES_API_KEY', '')
@@ -56,7 +57,7 @@ def save_to_db(timestamp, cpu, total, available, disk):
     conn = pymysql.connect(
         host='localhost',
         user='root',
-        password='Zzp911666@',
+        password=DB_PASSWORD,
         database='monitor'
     )
     cursor = conn.cursor()
@@ -164,7 +165,7 @@ def dashboard():
     conn = pymysql.connect(
         host='localhost',
         user='root',
-        password='Zzp911666@',
+        password=DB_PASSWORD,
         database='monitor'
     )
     cursor = conn.cursor()
@@ -264,7 +265,7 @@ def history():
     conn = pymysql.connect(
         host='localhost',
         user='root',
-        password='Zzp911666@',
+        password=DB_PASSWORD,
         database='monitor'
     )
     cursor = conn.cursor()
@@ -311,7 +312,7 @@ def save_alert_to_db(alert_type, message):
     conn = pymysql.connect(
         host='localhost',
         user='root',
-        password='Zzp911666@',
+        password=DB_PASSWORD,
         database='monitor'
     )
     cursor = conn.cursor()
