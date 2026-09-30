@@ -5,7 +5,7 @@ import time
 import time as time_module
 from datetime import datetime
 import requests
-import sqlite3
+import pymysql
 WXPUSHER_TOKEN = os.environ.get('WXPUSHER_TOKEN', '')
 WXPUSHER_UID = os.environ.get('WXPUSHER_UID', '')
 AGNES_KEY = os.environ.get('AGNES_API_KEY', '')
@@ -51,13 +51,18 @@ def get_weather(city):
     humidity = current["humidity"]
     return temp, weather, humidity
 
-# 把一次采集的数据写入 SQLite
+# 把一次采集的数据写入 MyLite
 def save_to_db(timestamp, cpu, total, available, disk):
-    conn = sqlite3.connect('monitor.db')
+    conn = pymysql.connect(
+        host='localhost',
+        user='root',
+        password='Zzp911666@',
+        database='monitor'
+    )
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO monitor_history (timestamp, cpu, memory_total, memory_available, disk_usage)
-        VALUES (?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s)
     ''', (timestamp, cpu, total, available, disk))
     conn.commit()
     conn.close()
@@ -156,7 +161,12 @@ def dashboard():
     # 内存使用率 = (总量 - 可用) / 总量 × 100
     mem_used_percent = round((int(total) - int(available)) / int(total) * 100, 1)
     # 查询最近 10 条历史记录
-    conn = sqlite3.connect('monitor.db')
+    conn = pymysql.connect(
+        host='localhost',
+        user='root',
+        password='Zzp911666@',
+        database='monitor'
+    )
     cursor = conn.cursor()
     cursor.execute('SELECT timestamp, cpu FROM monitor_history ORDER BY id DESC LIMIT 10')
     rows = cursor.fetchall()
@@ -251,7 +261,12 @@ def analyze():
 # /history：查询最近 10 条历史记录
 @app.route('/history')
 def history():
-    conn = sqlite3.connect('monitor.db')
+    conn = pymysql.connect(
+        host='localhost',
+        user='root',
+        password='Zzp911666@',
+        database='monitor'
+    )
     cursor = conn.cursor()
     cursor.execute('SELECT timestamp, cpu, memory_total, memory_available, disk_usage FROM monitor_history ORDER BY id DESC LIMIT 10')
     rows = cursor.fetchall()
@@ -293,11 +308,16 @@ def test_alert():
     return {"status": "已发送，请查看微信"}
 # 把告警记录写入数据库
 def save_alert_to_db(alert_type, message):
-    conn = sqlite3.connect('monitor.db')
+    conn = pymysql.connect(
+        host='localhost',
+        user='root',
+        password='Zzp911666@',
+        database='monitor'
+    )
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO alert_history (timestamp, alert_type, message)
-        VALUES (?, ?, ?)
+        VALUES (%s, %s, %s)
     ''', (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), alert_type, message))
     conn.commit()
     conn.close()

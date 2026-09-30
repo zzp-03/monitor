@@ -1,25 +1,30 @@
-import sqlite3
+import pymysql
 
-conn = sqlite3.connect('monitor.db')
+conn = pymysql.connect(
+    host='localhost',
+    user='root',
+    password='Zzp911666@',
+    database='monitor'
+)
 cursor = conn.cursor()
 
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS monitor_history (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    timestamp TEXT,
-    cpu TEXT,
-    memory_total TEXT,
-    memory_available TEXT,
-    disk_usage TEXT
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    timestamp VARCHAR(50),
+    cpu VARCHAR(50),
+    memory_total VARCHAR(50),
+    memory_available VARCHAR(50),
+    disk_usage VARCHAR(50)
 )
 ''')
 
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS alert_history (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    timestamp TEXT,
-    alert_type TEXT,
-    message TEXT
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    timestamp VARCHAR(50),
+    alert_type VARCHAR(20),
+    message VARCHAR(255)
 )
 ''')
 
