@@ -77,6 +77,7 @@ def send_alert(title, content):
     except Exception as e:
         print(f"[告警推送失败] {e}")
 
+# 装饰器，给函数加一层“检查”
 def login_required(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
