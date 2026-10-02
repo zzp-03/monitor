@@ -7,14 +7,33 @@
 - 系统状态查询：`/report`
 - 城市天气查询：`/weather?city=郑州`
 - 当前时间：`/now`
-- 历史记录存储（SQLite）
+- 历史记录存储（MyLite）
 
-## 运行
+## 环境要求
 
-```bash
-pip install flask requests
-python3 init_db.py
-python3 api_flask.py
+- Python 3.6+
+- MySQL 8.0
+- Linux（需要访问 /proc 目录）
+
+## 安装步骤
+
+1. 安装依赖
+   pip install -r requirements.txt
+
+2. 创建数据库
+   mysql -u root -p
+   CREATE DATABASE monitor;
+   EXIT;
+
+3. 设置环境变量
+   export DB_PASSWORD="你的MySQL密码"
+
+4. 建表
+   python3 init_db.py
+
+5. 启动服务
+   python3 api_flask.py
+
 ## 运行效果
 
 ![系统状态查询](./微信图片_20260908102732_82_27.png)
