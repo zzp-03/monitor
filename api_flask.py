@@ -6,6 +6,9 @@ import time as time_module
 from datetime import datetime
 import requests
 import pymysql
+import csv
+from io import StringIO
+from flask import Response
 DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
 WXPUSHER_TOKEN = os.environ.get('WXPUSHER_TOKEN', '')
 WXPUSHER_UID = os.environ.get('WXPUSHER_UID', '')
@@ -14,6 +17,14 @@ app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 app.secret_key = 'a-very-secret-key-change-me'
 LOGIN_PASSWORD = os.environ.get('DASHBOARD_PASSWORD', '')
+# 数据库连接函数，统一管理连接参数
+def get_db_connection():
+    return pymysql.connect(
+        host='localhost',
+        user='root',
+        password=DB_PASSWORD,
+        database='monitor'
+    )
 
 # 读取 /proc/loadavg，返回 1/5/15 分钟平均负载
 def get_cpu_load():
@@ -54,12 +65,7 @@ def get_weather(city):
 
 # 把一次采集的数据写入 MyLite
 def save_to_db(timestamp, cpu, total, available, disk):
-    conn = pymysql.connect(
-        host='localhost',
-        user='root',
-        password=DB_PASSWORD,
-        database='monitor'
-    )
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO monitor_history (timestamp, cpu, memory_total, memory_available, disk_usage)
@@ -148,6 +154,27 @@ def login():
 def logout():
     session.clear()
     return redirect('/login')
+
+# /export：导出最近 100 条监控记录为 CSV
+@app.route('/export')
+@login_required
+def export_csv():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT timestamp, cpu, memory_total, memory_available, disk_usage FROM monitor_history ORDER BY id DESC LIMIT 100')
+    rows = cursor.fetchall()
+    conn.close()
+
+    output = StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['时间', 'CPU负载', '内存总量', '可用内存', '磁盘使用率'])
+    for row in rows:
+        writer.writerow(row)
+
+    response = Response(output.getvalue(), mimetype='text/csv')
+    response.headers['Content-Disposition'] = 'attachment; filename=monitor_history.csv'
+    return response
+
 # /dashboard：渲染监控面板页面，显示真实数据
 @app.route('/dashboard')
 @login_required
@@ -162,12 +189,7 @@ def dashboard():
     # 内存使用率 = (总量 - 可用) / 总量 × 100
     mem_used_percent = round((int(total) - int(available)) / int(total) * 100, 1)
     # 查询最近 10 条历史记录
-    conn = pymysql.connect(
-        host='localhost',
-        user='root',
-        password=DB_PASSWORD,
-        database='monitor'
-    )
+    conn = get_db_connection() 
     cursor = conn.cursor()
     cursor.execute('SELECT timestamp, cpu FROM monitor_history ORDER BY id DESC LIMIT 10')
     rows = cursor.fetchall()
@@ -262,12 +284,7 @@ def analyze():
 # /history：查询最近 10 条历史记录
 @app.route('/history')
 def history():
-    conn = pymysql.connect(
-        host='localhost',
-        user='root',
-        password=DB_PASSWORD,
-        database='monitor'
-    )
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('SELECT timestamp, cpu, memory_total, memory_available, disk_usage FROM monitor_history ORDER BY id DESC LIMIT 10')
     rows = cursor.fetchall()
@@ -309,12 +326,7 @@ def test_alert():
     return {"status": "已发送，请查看微信"}
 # 把告警记录写入数据库
 def save_alert_to_db(alert_type, message):
-    conn = pymysql.connect(
-        host='localhost',
-        user='root',
-        password=DB_PASSWORD,
-        database='monitor'
-    )
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO alert_history (timestamp, alert_type, message)
