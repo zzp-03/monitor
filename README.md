@@ -34,6 +34,26 @@
 5. 启动服务
    python3 api_flask.py
 
+## Nginx 反向代理
+
+项目通过 Nginx 反向代理部署，访问 80 端口即可，无需指定 8001 端口。
+
+![Nginx反向代理](./nginx_proxy.png)
+
+配置示例：
+
+```nginx
+server {
+    listen 80;
+    server_name 192.168.100.4;
+
+    location / {
+        proxy_pass http://127.0.0.1:8001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+
 ## 运行效果
 
 ![系统状态查询](./微信图片_20260908102732_82_27.png)
