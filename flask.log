@@ -1,0 +1,79 @@
+nohup: 忽略输入
+ * Serving Flask app 'api_flask' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: on
+ * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://192.168.100.4:8001/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 926-556-102
+127.0.0.1 - - [07/Oct/2026 09:11:46] "[32mGET /dashboard HTTP/1.0[0m" 302 -
+127.0.0.1 - - [07/Oct/2026 09:12:44] "[32mGET /dashboard HTTP/1.0[0m" 302 -
+127.0.0.1 - - [07/Oct/2026 09:12:44] "GET /login HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:12:44] "[33mGET /favicon.ico HTTP/1.0[0m" 404 -
+127.0.0.1 - - [07/Oct/2026 09:13:21] "POST /login HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:13:29] "POST /login HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:13:35] "POST /login HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:15:02] "GET /report HTTP/1.1" 200 -
+127.0.0.1 - - [07/Oct/2026 09:15:05] "[32mPOST /login HTTP/1.0[0m" 302 -
+127.0.0.1 - - [07/Oct/2026 09:15:05] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:15:15] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:15:16] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:15:16] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:15:16] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:15:24] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:15:55] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:16:25] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:16:55] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:17:25] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:17:55] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:18:25] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:18:55] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:19:25] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:19:55] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:20:03] "GET /report HTTP/1.1" 200 -
+127.0.0.1 - - [07/Oct/2026 09:20:25] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:20:55] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:21:25] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:21:55] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:22:25] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:22:55] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:23:25] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:23:55] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:24:26] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:24:56] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:25:03] "GET /report HTTP/1.1" 200 -
+127.0.0.1 - - [07/Oct/2026 09:25:26] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:25:56] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:26:26] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:26:56] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:27:26] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:27:56] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:28:26] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:28:56] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:29:26] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:29:56] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:30:03] "GET /report HTTP/1.1" 200 -
+127.0.0.1 - - [07/Oct/2026 09:30:26] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:35:03] "GET /report HTTP/1.1" 200 -
+127.0.0.1 - - [07/Oct/2026 09:40:03] "GET /report HTTP/1.1" 200 -
+127.0.0.1 - - [07/Oct/2026 09:40:49] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:41:19] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:41:49] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:42:19] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:42:49] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:43:19] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:43:49] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:44:19] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:44:49] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:45:02] "GET /report HTTP/1.1" 200 -
+127.0.0.1 - - [07/Oct/2026 09:45:19] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:45:49] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:46:19] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:46:49] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:47:19] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:47:49] "GET /dashboard HTTP/1.0" 200 -
+127.0.0.1 - - [07/Oct/2026 09:48:19] "GET /dashboard HTTP/1.0" 200 -
