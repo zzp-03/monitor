@@ -34,6 +34,33 @@
 5. 启动服务
    python3 api_flask.py
 
+## 部署方式
+
+项目通过 systemd 做成系统服务，支持开机自启和崩溃自动重启。
+
+配置 `/etc/systemd/system/monitor.service`：
+
+```ini
+[Unit]
+Description=Flask Monitor Service
+After=network.target mysqld.service
+
+[Service]
+Type=simple
+WorkingDirectory=/root/monitor
+Environment="DB_PASSWORD=..."
+Environment="WXPUSHER_TOKEN=..."
+Environment="WXPUSHER_UID=..."
+Environment="AGNES_API_KEY=..."
+Environment="DASHBOARD_PASSWORD=..."
+ExecStart=/usr/bin/python3 /root/monitor/api_flask.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Nginx 反向代理
 
 项目通过 Nginx 反向代理部署，访问 80 端口即可，无需指定 8001 端口。
