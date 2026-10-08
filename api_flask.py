@@ -112,7 +112,7 @@ def check_alerts(cpu_1min,mem_percent, disk_percent):
     except:
         cpu_value = 0
 
-    if cpu_value > 0.8:
+    if cpu_value > 1.5:
         last = last_alert_time.get('cpu', 0)
         if now - last > 1800:
             send_alert("CPU 告警", f"CPU 负载过高：{cpu_value}")
