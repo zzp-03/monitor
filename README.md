@@ -60,6 +60,7 @@ RestartSec=5
 [Install]
 WantedBy=multi-user.target
 ```
+![systemd状态](./systemd_status.png)
 
 ## Nginx 反向代理
 
