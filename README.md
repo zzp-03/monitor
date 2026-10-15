@@ -1,119 +1,134 @@
 # 系统监控 API 服务
 
-基于 Flask 的轻量级系统监控 API，支持 CPU/内存/磁盘监控、天气查询、数据历史存储。
+基于 Flask 的轻量级系统监控 API，支持 CPU/内存/磁盘监控、天气查询、AI 分析、微信告警、Web 仪表盘。
 
 ## 功能
 
 - 系统状态查询：`/report`
 - 城市天气查询：`/weather?city=郑州`
 - 当前时间：`/now`
-- 历史记录存储（MyLite）
+- 历史记录存储（MySQL）
+- AI 分析系统状态：`/analyze`
+- 微信告警推送（WxPusher）
+- Web 监控面板：`/dashboard`
+- CSV 导出历史数据：`/export`
+- 登录保护
 
 ## 环境要求
 
 - Python 3.6+
 - MySQL 8.0
-- Linux（需要访问 /proc 目录）
+- Linux（需要访问 `/proc` 目录）
+- Nginx（反向代理）
+- systemd（服务管理）
 
-## 安装步骤
+## 部署方式
+
+本项目支持两种部署方式，选择其中一种即可。
+
+### 方式一：systemd（推荐，本项目当前使用）
+
+适用于 Linux 服务器，已装好 Python 3.6+、MySQL 8.0、Nginx。
 
 1. 安装依赖
+
    pip install -r requirements.txt
 
 2. 创建数据库
+
    mysql -u root -p
    CREATE DATABASE monitor;
    EXIT;
 
 3. 设置环境变量
+
    export DB_PASSWORD="你的MySQL密码"
+   export WXPUSHER_TOKEN="你的WxPusher Token"
+   export WXPUSHER_UID="你的WxPusher UID"
+   export AGNES_API_KEY="你的Agnes API Key"
+   export DASHBOARD_PASSWORD="你的登录密码"
 
 4. 建表
+
    python3 init_db.py
 
-5. 启动服务
-   python3 api_flask.py
+5. 配置 systemd 服务（`/etc/systemd/system/monitor.service`）
 
-## 部署方式
+   ```ini
+   [Unit]
+   Description=Flask Monitor Service
+   After=network.target mysqld.service
 
-项目通过 systemd 做成系统服务，支持开机自启和崩溃自动重启。
+   [Service]
+   Type=simple
+   WorkingDirectory=/root/monitor
+   Environment="DB_PASSWORD=你的密码"
+   Environment="WXPUSHER_TOKEN=你的token"
+   Environment="WXPUSHER_UID=你的uid"
+   Environment="AGNES_API_KEY=你的key"
+   Environment="DASHBOARD_PASSWORD=你的登录密码"
+   ExecStart=/usr/bin/python3 /root/monitor/api_flask.py
+   Restart=always
+   RestartSec=5
 
-配置 `/etc/systemd/system/monitor.service`：
+   [Install]
+   WantedBy=multi-user.target
 
-```ini
-[Unit]
-Description=Flask Monitor Service
-After=network.target mysqld.service
+### 方式二：Docker Compose（适合新电脑）
 
-[Service]
-Type=simple
-WorkingDirectory=/root/monitor
-Environment="DB_PASSWORD=..."
-Environment="WXPUSHER_TOKEN=..."
-Environment="WXPUSHER_UID=..."
-Environment="AGNES_API_KEY=..."
-Environment="DASHBOARD_PASSWORD=..."
-ExecStart=/usr/bin/python3 /root/monitor/api_flask.py
-Restart=always
-RestartSec=5
+需要 Linux 内核 4.x 以上，比如 Ubuntu 20.04 以上、CentOS 8 以上、Windows 装了 Docker Desktop。
 
-[Install]
-WantedBy=multi-user.target
-```
-![systemd状态](./systemd_status.png)
+    cp .env.example .env
+    vi .env
+    docker-compose up -d
 
-## Nginx 反向代理
+然后访问 `http://localhost:8001/report`。
 
-项目通过 Nginx 反向代理部署，访问 80 端口即可，无需指定 8001 端口。
+注意：CentOS 7 全系列内核都是 3.10，Docker 桥接网络可能不兼容，建议用 Ubuntu 20.04 以上。
 
-![Nginx反向代理](./nginx_proxy.png)
+## 接口列表
 
-配置示例：
+| 接口 | 方法 | 说明 |
+|------|------|------|
+| `/report` | GET | 返回 CPU、内存、磁盘、天气 |
+| `/weather?city=北京` | GET | 指定城市的天气 |
+| `/now` | GET | 当前时间 |
+| `/analyze` | GET | 调用 AI 分析系统状态 |
+| `/history` | GET | 最近 10 条历史记录 |
+| `/export` | GET | 导出最近 100 条记录为 CSV |
+| `/dashboard` | GET | Web 监控面板（需要登录） |
+| `/login` | GET/POST | 登录页 |
+| `/logout` | GET | 退出登录 |
+| `/test_alert` | GET | 测试微信告警推送 |
 
-```nginx
-server {
-    listen 80;
-    server_name 192.168.100.4;
+## 项目结构
 
-    location / {
-        proxy_pass http://127.0.0.1:8001;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-}
-```
+    monitor/
+    ├── api_flask.py          核心代码
+    ├── init_db.py            建表脚本
+    ├── collecter.py          定时采集脚本
+    ├── Dockerfile            Docker 构建文件
+    ├── docker-compose.yml    Docker Compose 配置
+    ├── requirements.txt      依赖列表
+    ├── templates/
+    │   ├── index.html        仪表盘页面
+    │   └── login.html        登录页
+    └── README.md
+
+## 依赖
+
+- Flask
+- requests
+- pymysql
 
 ## 运行效果
 
-![系统状态查询](system_status.png)
+![系统状态查询](./system_status.png)
 
-## 定时采集效果
-
-![定时采集成功](./collect_success.png)
-
-## AI 分析接口
-
-访问 `/analyze` 会先采集系统状态，然后调用 Agnes AI 分析是否正常，返回 AI 的分析结果。
-
-![AI分析效果](./analyze_success.png)
-## 监控面板
-
-访问 `/dashboard` 可以看到一个 Web 页面，显示真实的 CPU、内存、磁盘数据。
-
-![监控面板](./web_v5.png)
-
-## 告警历史
-
-页面下方会显示最近 10 条告警记录。
+![监控面板](./web_v6.png)
 
 ![告警历史](./web_v6.png)
 
 ## 技术博客
 
-- [从零搭建监控系统：用 WxPusher 实现微信告警](https://blog.csdn.net/zzp_03/article/details/166680906)
-
-## 登录保护
-
-访问 `/dashboard` 需要登录，密码从环境变量 `DASHBOARD_PASSWORD` 读取。
-
-![登录页](./login_page.png)
+[从零搭建监控系统：用 WxPusher 实现微信告警](https://blog.csdn.net/zzp_03/article/details/166680906)
