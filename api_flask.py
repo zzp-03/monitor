@@ -18,13 +18,25 @@ app.config['JSON_AS_ASCII'] = False
 app.secret_key = 'a-very-secret-key-change-me'
 LOGIN_PASSWORD = os.environ.get('DASHBOARD_PASSWORD', '')
 # 数据库连接函数，统一管理连接参数
+DB_HOST = os.environ.get('DB_HOST', 'localhost')
+DB_PORT = int(os.environ.get('DB_PORT', 3306))
+
+
 def get_db_connection():
-    return pymysql.connect(
-        host='localhost',
-        user='root',
-        password=DB_PASSWORD,
-        database='monitor'
-    )
+    try:
+        conn = pymysql.connect(
+            host=DB_HOST,
+            port=DB_PORT,
+            user='root',
+            password=DB_PASSWORD,
+            database='monitor'
+        )
+        return conn
+    except Exception as e:
+        # 打印人话警告，方便在黑框框里排障
+        print(f"【警告】数据库连接失败！错误原因: {e}")
+        # 把异常原样抛出，让 Flask 知道这里出事了
+        raise e
 
 # 读取 /proc/loadavg，返回 1/5/15 分钟平均负载
 def get_cpu_load():
@@ -335,4 +347,6 @@ def save_alert_to_db(alert_type, message):
     conn.commit()
     conn.close()
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8001, debug=True)
+    # 从环境变量读端口，读不到就用 8001 兜底
+    PORT = int(os.environ.get('APP_PORT', 8001))
+    app.run(host='0.0.0.0', port=PORT, debug=True)
