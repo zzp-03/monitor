@@ -123,11 +123,23 @@
 
 ## 运行效果
 
-![系统状态查询](./system_status.png)
+### 1. 登录鉴权
+![登录界面](login_page.png)
 
-![监控面板](./web_v6.png)
+### 2. 监控面板
+![监控面板](dashboard.png)
 
-![告警历史](./web_v6.png)
+### 3. 系统状态接口
+![系统状态](status.png)
+
+### 4. AI 智能分析
+![AI分析](analyze_success.png)
+
+### 5. Nginx 反向代理
+![Nginx配置](nginx_proxy.png)
+
+### 6. systemd 服务托管
+![systemd状态](systemd_status.png)
 
 ## 技术博客
 
