@@ -15,11 +15,15 @@ WXPUSHER_UID = os.environ.get('WXPUSHER_UID', '')
 AGNES_KEY = os.environ.get('AGNES_API_KEY', '')
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
-app.secret_key = 'a-very-secret-key-change-me'
+# 如果环境变量没配，就随机生成一串密钥
+app.secret_key = os.environ.get('FLASK_SECRET_KEY') or os.urandom(32)
+
 LOGIN_PASSWORD = os.environ.get('DASHBOARD_PASSWORD', '')
-# 数据库连接函数，统一管理连接参数
-DB_HOST = os.environ.get('DB_HOST', 'localhost')
-DB_PORT = int(os.environ.get('DB_PORT', 3306))
+
+# 核心安全拦截：没配密码直接死给你看，绝不裸奔
+if not LOGIN_PASSWORD:
+    raise SystemExit("【启动失败】DASHBOARD_PASSWORD 未设置，拒绝以空密码启动！")
+    
 
 
 def get_db_connection():
@@ -334,6 +338,9 @@ def get_current_time():
 # /test_alert：测试告警推送
 @app.route('/test_alert')
 def test_alert():
+    # 校验 token，防止别人乱刷你的微信
+    if request.args.get('token') != os.environ.get('ALERT_TOKEN', ''):
+        return {"error": "forbidden"}, 403
     send_alert("测试告警", "这是一条来自监控系统的测试告警")
     return {"status": "已发送，请查看微信"}
 # 把告警记录写入数据库
@@ -347,6 +354,6 @@ def save_alert_to_db(alert_type, message):
     conn.commit()
     conn.close()
 if __name__ == "__main__":
-    # 从环境变量读端口，读不到就用 8001 兜底
     PORT = int(os.environ.get('APP_PORT', 8001))
-    app.run(host='0.0.0.0', port=PORT, debug=True)
+    # 生产环境强制关 debug，除非环境变量显式指定
+    app.run(host='0.0.0.0', port=PORT, debug=os.environ.get('FLASK_DEBUG') == '1')
