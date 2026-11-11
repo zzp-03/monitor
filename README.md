@@ -2,6 +2,16 @@
 
 基于 Flask 的轻量级系统监控 API，支持 CPU/内存/磁盘监控、天气查询、AI 分析、微信告警、Web 仪表盘。
 
+## 系统架构图
+
+![系统架构图](architecture.png)
+
+**核心链路说明：**
+1. **定时采集链路**：Crontab 定时请求 Flask 的 `/report` 接口，将 CPU、内存、磁盘等数据写入 MySQL。
+2. **监控告警链路**：Flask 校验数据，超过阈值（如 CPU 负载 > 1.5）则通过 WxPusher 推送微信告警，并记录到数据库。
+3. **可视化面板链路**：用户通过浏览器访问 Nginx，Nginx 反向代理到 Flask 的 `/dashboard`，Flask 查库后渲染出带有图表的监控大屏。
+4. **AI 辅助分析**：通过 `/analyze` 接口调用 Agnes AI，对当前系统状态进行智能诊断。
+
 ## 功能
 
 - 系统状态查询：`/report`
