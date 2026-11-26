@@ -10,6 +10,8 @@ import csv
 from io import StringIO
 from flask import Response
 DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
+DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')
+DB_PORT = int(os.environ.get('DB_PORT', 3306))
 WXPUSHER_TOKEN = os.environ.get('WXPUSHER_TOKEN', '')
 WXPUSHER_UID = os.environ.get('WXPUSHER_UID', '')
 AGNES_KEY = os.environ.get('AGNES_API_KEY', '')

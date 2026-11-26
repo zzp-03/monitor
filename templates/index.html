@@ -62,7 +62,7 @@ i<!DOCTYPE html>
     <h2 style="text-align:center; margin-top:40px;">CPU 历史趋势（最近10次）</h2>
     <canvas id="cpuChart" width="800" height="300" style="display:block; margin:20px auto;"></canvas>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/chart.umd.min.js"></script>
     <script>
         const times = {{ times | tojson }};
         const cpus = {{ cpus | tojson }};
